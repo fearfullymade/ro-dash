@@ -1,0 +1,12 @@
+{
+  "autoload": {
+    "psr-4": { "roDash\\": "src/" }
+  },
+  "require": {
+    "ext-mongo": "*",
+    "slim/slim": "^3.0-RC"
+  },
+  "require-dev": {
+    "heroku/heroku-buildpack-php": "*"
+  }
+}
