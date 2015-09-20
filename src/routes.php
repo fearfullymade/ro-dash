@@ -27,10 +27,30 @@ $app->get('/metric/{x}/{y}', function ($request, $response, $args) {
 
     if ($v == 'null')
       $v = null;
+    else if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/',$v) == 1) 
+      $v = new MongoDate(strtotime($v));
 
     switch (substr($k, -1)) {
     case '!':
-      $filters['_id.'.substr($k, 0, strlen($k) - 1)] = ['$ne' => $v];
+      $field = '_id.'.substr($k, 0, strlen($k) - 1);
+      if (!isset($filters[$field]))
+        $fitlers[$field] = [];
+
+      $filters[$field]['$ne'] = $v;
+      break;
+    case '<':
+      $field = '_id.'.substr($k, 0, strlen($k) - 1);
+      if (!isset($filters[$field]))
+        $fitlers[$field] = [];
+
+      $filters[$field]['$lte'] = $v;
+      break;
+    case '>':
+      $field = '_id.'.substr($k, 0, strlen($k) - 1);
+      if (!isset($filters[$field]))
+        $fitlers[$field] = [];
+
+      $filters[$field]['$gte'] = $v;
       break;
     default:
       $filters['_id.'.$k] = $v;

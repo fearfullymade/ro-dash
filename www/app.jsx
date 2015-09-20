@@ -1,9 +1,119 @@
+var DateRange = function DateRange(val) {
+  function BuildGetter(val) {
+    if (val.startsWith('-') || val.startsWith('+')) {
+      var num = val.substring(0, val.length - 1);
+      var type = val.substring(val.length - 1);
+
+      return function () {
+        return moment().startOf('day').add(num, type);
+      };
+    }
+  }
+
+  this.getId = function () { return val; };
+
+  if (val == 'all') {
+    this.getStartDate = function () { return null; };
+    this.getEndDate = function () { return null; };
+  }
+  else {
+    var parts = val.split(',');
+
+    var start = parts[0];
+    var end = parts.length > 1 ? parts[1] : '-0d';
+
+    this.getStartDate = BuildGetter(start);
+    this.getEndDate = BuildGetter(end);
+  }
+  /*this.getStartDate = function () {
+    if (val == 'all')
+      return null;
+
+    var today = moment().startOf('day');
+
+    switch (val) {
+      case '-30d':
+        return today.subtract(30, 'days');
+    }
+  };
+
+  this.getEndDate = function () {
+    if (val == 'all')
+      return null;
+
+    return moment().startOf('day');
+  };*/
+};
+
+DateRange.areSame = function (r1, r2) {
+  if (!r1 && !r2)
+    return true;
+
+  if (!r1 || !r2)
+    return false;
+
+  return r1.getId() == r2.getId();
+};
+
+var DateRangePicker = React.createClass({
+  getInitialState: function () {
+    return {
+      isOpen: false
+    };
+  },
+
+  handleMainButtonClick: function (event) {
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
+  },
+
+  handlePresetClick: function (rangeId, event) {
+    var range = new DateRange(rangeId);
+
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
+
+    if (!DateRange.areSame(this.props.range, range))
+      this.props.onChange(range);
+  },
+
+  render: function () {
+    var classes = this.state.isOpen ? 'btn-group open' : 'btn-group';
+
+    var currentRange = '';
+
+    if (this.props.current) {
+      if (this.props.current.getId() == 'all')
+        currentRange = <span>All Time</span>;
+      else
+        currentRange = <span>{this.props.current.getStartDate().format("YYYY-MM-DD")} &ndash; {this.props.current.getEndDate().format("YYYY-MM-DD")}</span>;
+    }
+
+    return (
+      <div className={classes}>
+        <button type="button" className="btn btn-secondary-outline" onClick={this.handleMainButtonClick}>
+          <i className="fa fa-calendar-o" /> {currentRange}
+        </button>
+        <div className="dropdown-menu dropdown-menu-right">
+          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, 'all')}>All Time</a>
+          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-0d')}>Today</a>
+          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-30d')}>Last 30 days</a>
+        </div>
+      </div>
+    );
+  }
+});
 
 var TopNav = React.createClass({
   render: function () {
     return (
       <nav className="navbar navbar-dark bg-inverse">
         <a className="navbar-brand" href="#">ReachOut Dashboard</a>
+        <div className="pull-right">
+          <DateRangePicker onChange={this.props.handleDateRangeChange} current={this.props.dateRange} />
+        </div>
       </nav>
     );
   }
@@ -43,6 +153,7 @@ var TimeGraphCard = React.createClass({
   },
 
   componentDidMount: function () {
+    this.configureGraph();
     this.refreshData();
   },
 
@@ -53,13 +164,48 @@ var TimeGraphCard = React.createClass({
     }
   },
 
-  refreshData: function () {
-    if (this.props.src) {
+  configureGraph: function (range) {
+    if (!range)
+      range = this.props.range;
+
+    var opts = this.state.flotOptions;
+
+    var startDate = range.getStartDate();
+    var endDate = range.getEndDate() || moment().startOf('day');
+
+    //this might break at daylight savings time?
+    if (startDate)
+      startDate.subtract(16, 'hour');
+    endDate.add(8, 'hour');
+
+    opts.xaxis.min = startDate ? startDate.valueOf() : null;
+    opts.xaxis.max = endDate.valueOf();
+
+    this.setState({
+      flotOptions: opts
+    });
+  },
+
+  refreshData: function (src, range) {
+    if (!src)
+      src = this.props.src;
+    if (!range)
+      range = this.props.range;
+
+    if (src) {
       this.setState({
         refreshing: true
       });
 
-      $.getJSON(this.props.src, function (result) {
+      var startDate = range.getStartDate();
+      var endDate = range.getEndDate();
+
+      if (startDate)
+        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date>=' + startDate.format("YYYY-MM-DD");
+      if (endDate)
+        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date<=' + endDate.format("YYYY-MM-DD");
+
+      $.getJSON(src, function (result) {
         var data = []; 
 
         for (var s in result) {
@@ -84,6 +230,13 @@ var TimeGraphCard = React.createClass({
 
   handleRefreshClick: function (e) {
     this.refreshData();
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.src != this.props.src || !DateRange.areSame(nextProps.range, this.props.range)) {
+      this.configureGraph(nextProps.range);
+      this.refreshData(nextProps.src, nextProps.range);
+    }
   },
 
   render: function () {
@@ -130,13 +283,26 @@ var PieCard = React.createClass({
     }
   },
 
-  refreshData: function () {
-    if (this.props.src) {
+  refreshData: function (src, range) {
+    if (!src)
+      src = this.props.src;
+    if (!range)
+      range = this.props.range;
+
+    if (src) {
       this.setState({
         refreshing: true
       });
 
-      $.getJSON(this.props.src, function (result) {
+      var startDate = range.getStartDate();
+      var endDate = range.getEndDate();
+
+      if (startDate)
+        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date>=' + startDate.format("YYYY-MM-DD");
+      if (endDate)
+        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date<=' + endDate.format("YYYY-MM-DD");
+
+      $.getJSON(src, function (result) {
         var data = []; 
 
         for (var i = 0; i < result[0].length; i++) {
@@ -158,6 +324,11 @@ var PieCard = React.createClass({
 
   handleRefreshClick: function (e) {
     this.refreshData();
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.src != this.props.src || !DateRange.areSame(nextProps.range, this.props.range))
+      this.refreshData(nextProps.src, nextProps.range);
   },
 
   render: function () {
@@ -203,13 +374,26 @@ var ListCard = React.createClass({
     }.bind(this));
   },
 
-  refreshData: function () {
-    if (this.props.src) {
+  refreshData: function (src, range) {
+    if (!src)
+      src = this.props.src;
+    if (!range)
+      range = this.props.range;
+
+    if (src) {
       this.setState({
         refreshing: true
       });
 
-      $.getJSON(this.props.src, function (result) {
+      var startDate = range.getStartDate();
+      var endDate = range.getEndDate();
+
+      if (startDate)
+        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date>=' + startDate.format("YYYY-MM-DD");
+      if (endDate)
+        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date<=' + endDate.format("YYYY-MM-DD");
+
+      $.getJSON(src, function (result) {
         if (this.isMounted()) {
           this.setState({
             refreshing: false,
@@ -222,6 +406,11 @@ var ListCard = React.createClass({
 
   handleRefreshClick: function (e) {
     this.refreshData();
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.src != this.props.src || !DateRange.areSame(nextProps.range, this.props.range))
+      this.refreshData(nextProps.src, nextProps.range);
   },
 
   render: function () {
@@ -263,19 +452,19 @@ var Layout = React.createClass({
       <div style={{marginTop:'30px'}}>
         <div className="row">
           <div className="col-lg-8">
-            <TimeGraphCard title="Total Activity" src="/api/metric/date/total?split=isTrial" />
-            <TimeGraphCard title="Active Users" src="/api/metric/date/count?group=userId&split=isTrial&userId!=null" />
+            <TimeGraphCard title="Total Activity" range={this.props.dateRange} src="/api/metric/date/total?split=isTrial" />
+            <TimeGraphCard title="Active Users" range={this.props.dateRange} src="/api/metric/date/count?group=userId&split=isTrial&userId!=null" />
           </div>
           <div className="col-lg-4">
-            <ListCard title="Top Users" src="/api/metric/userId/total?userId!=null&sort=-total" />
+            <ListCard title="Top Users" range={this.props.dateRange} src="/api/metric/userId/total?userId!=null&sort=-total" />
           </div>
         </div>
         <div className="row">
           <div className="col-sm-4">
-            <PieCard title="Response Code" src="/api/metric/responseCode/total" />
+            <PieCard title="Response Code" range={this.props.dateRange} src="/api/metric/responseCode/total" />
           </div>
           <div className="col-sm-4">
-            <PieCard title="Method" src="/api/metric/method/total" />
+            <PieCard title="Method" range={this.props.dateRange} src="/api/metric/method/total" />
           </div>
         </div>
       </div>
@@ -284,11 +473,23 @@ var Layout = React.createClass({
 });
 
 var DashApp = React.createClass({
+  getInitialState: function () {
+    return {
+      dateRange: new DateRange('all')
+    };
+  },
+
+  handleDateRangeChange: function (range) {
+    this.setState({
+      dateRange: range
+    });
+  },
+
   render: function () {
     return (
       <div className="container-fluid">
-        <TopNav />
-        <Layout />
+        <TopNav dateRange={this.state.dateRange} handleDateRangeChange={this.handleDateRangeChange} />
+        <Layout dateRange={this.state.dateRange} />
       </div>
     );
   }
