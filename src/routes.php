@@ -110,6 +110,11 @@ $app->get('/metric/{x}/{y}', function ($request, $response, $args) {
     $opts []= ['$sort' => $sorts];
   }
 
+  //limit stage
+  if (isset($params['limit'])) {
+    $opts []= ['$limit' => intval($params['limit'])];
+  }
+
   //print_r($opts);
   
   //run query

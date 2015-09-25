@@ -414,6 +414,7 @@ var ListCard = React.createClass({
   },
 
   render: function () {
+    var mapX = this.props.mapX;
     var users = this.state.users;
 
     var total = this.state.listData.reduce(function (t, item) { return t + item[1]; }, 0);
@@ -432,10 +433,15 @@ var ListCard = React.createClass({
               {this.state.listData.map(function (item) {
                 var percent =  100 * item[1] / total;
 
+                var display = item[0];
+
+                if (mapX == 'user')
+                  display = users[item[0]];
+
                 return (
                   <li key={item[0]} className="list-group-item" style={{background: 'linear-gradient(to right, #444 '+percent+'%, #373a3c '+percent+'%)'}}>
                     <span className="pull-right">{item[1]}</span>
-                    {users[item[0]]}
+                    {display}
                   </li>
                 );
               })}
@@ -456,15 +462,23 @@ var Layout = React.createClass({
             <TimeGraphCard title="Active Users" range={this.props.dateRange} src="/api/metric/date/count?group=userId&split=isTrial&userId!=null" />
           </div>
           <div className="col-lg-4">
-            <ListCard title="Top Users" range={this.props.dateRange} src="/api/metric/userId/total?userId!=null&sort=-total" />
+            <ListCard title="Top Users" range={this.props.dateRange} src="/api/metric/userId/total?userId!=null&sort=-total&limit=10" mapX="user" />
           </div>
         </div>
         <div className="row">
-          <div className="col-sm-4">
-            <PieCard title="Response Code" range={this.props.dateRange} src="/api/metric/responseCode/total" />
+          <div className="col-lg-8">
+            <div className="row">
+              <div className="col-sm-6">
+                <PieCard title="Response Code" range={this.props.dateRange} src="/api/metric/responseCode/total" />
+              </div>
+              <div className="col-sm-6">
+                <PieCard title="Method" range={this.props.dateRange} src="/api/metric/method/total" />
+              </div>
+            </div>
+            <TimeGraphCard title="Client Error Reports" range={this.props.dateRange} src="/api/metric/date/total?path=rest/reportError" />
           </div>
-          <div className="col-sm-4">
-            <PieCard title="Method" range={this.props.dateRange} src="/api/metric/method/total" />
+          <div className="col-lg-4">
+            <ListCard title="Top Paths" range={this.props.dateRange} src="/api/metric/path/total?sort=-total&limit=10" />
           </div>
         </div>
       </div>
