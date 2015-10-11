@@ -109,6 +109,9 @@ $app->get('/metric/{x}/{y}', function ($request, $response, $args) {
 
     $opts []= ['$sort' => $sorts];
   }
+  else {
+    $opts []= ['$sort' => ['_id.'.$args['x'] => 1]];
+  }
 
   //limit stage
   if (isset($params['limit'])) {
@@ -143,6 +146,57 @@ $app->get('/metric/{x}/{y}', function ($request, $response, $args) {
 
     $results[$series] []= [$x, $y];
   }
+
+  ksort($results);
+
+  echo json_encode($results);
+});
+
+$app->get('/accessRequests', function ($request, $response, $args) {
+  $params = $request->getQueryParams();
+
+  $conn = new MongoClient('mongodb://reachoutapp:6dLmTPtBwXuA@ds037478.mongolab.com:37478/reachout');
+  $db = $conn->selectDB('reachout');
+
+  $opts = [];
+  $dateFilters = [];
+
+  if (isset($params['date>']))
+    $dateFilters['$gt'] = new MongoDate(strtotime($params['date>']));
+  if (isset($params['date<']))
+    $dateFilters['$lt'] = new MongoDate(strtotime($params['date<']) + 60*60*24);
+
+  if (count($dateFilters) > 0)
+    $opts []= ['$match' => ['submittedOn' => $dateFilters]];
+
+  $opts []= ['$group' =>
+    ['_id' => [
+      'date' => ['$dateToString' => ['format' => '%Y-%m-%d', 'date' => '$submittedOn']],
+      'status' => '$status'
+    ],
+    'count' => ['$sum' => 1]
+  ]];
+
+  $opts []= ['$sort' => ['_id.date' => 1]];
+
+  //print_r($opts);
+
+  $data = $db->accessRequests->aggregate($opts);
+  
+  $results = [];
+
+  foreach ($data['result'] as $d) {
+    $date = strtotime($d['_id']['date']) * 1000;
+    $status = ucfirst($d['_id']['status']);
+    $count = $d['count'];
+
+    if (!isset($results[$status]))
+      $results[$status] = [];
+
+    $results[$status] []= [$date, $count];
+  }
+
+  ksort($results);
 
   echo json_encode($results);
 });

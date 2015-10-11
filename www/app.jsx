@@ -99,6 +99,7 @@ var DateRangePicker = React.createClass({
         <div className="dropdown-menu dropdown-menu-right">
           <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, 'all')}>All Time</a>
           <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-0d')}>Today</a>
+          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-7d')}>Last 7 days</a>
           <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-30d')}>Last 30 days</a>
         </div>
       </div>
@@ -120,6 +121,12 @@ var TopNav = React.createClass({
 });
 
 var TimeGraphCard = React.createClass({
+  getDefaultProps: function () {
+    return {
+      colors: {}
+    };
+  },
+
   getInitialState: function () {
     return {
       refreshing: false,
@@ -209,10 +216,15 @@ var TimeGraphCard = React.createClass({
         var data = []; 
 
         for (var s in result) {
-          data.push({
+          var series = {
             label: s,
             data: result[s]
-          });
+          };
+
+          if (this.props.colors[series.label])
+            series.color = this.props.colors[series.label];
+
+          data.push(series);
         }
 
         if (data.length == 1)
@@ -258,6 +270,12 @@ var TimeGraphCard = React.createClass({
 });
 
 var PieCard = React.createClass({
+  getDefaultProps: function () {
+    return {
+      colors: {}
+    };
+  },
+
   getInitialState: function () {
     return {
       refreshing: false,
@@ -305,11 +323,22 @@ var PieCard = React.createClass({
       $.getJSON(src, function (result) {
         var data = []; 
 
+        result[0].sort(function (a, b) {
+          if (a < b) return -1;
+          if (a > b) return 1;
+          return 0;
+        });
+
         for (var i = 0; i < result[0].length; i++) {
-          data.push({
+          var series = {
             label: result[0][i][0],
             data: result[0][i][1]
-          });
+          };
+
+          if (this.props.colors[series.label])
+            series.color = this.props.colors[series.label];
+          
+          data.push(series);
         }
 
         if (this.isMounted()) {
@@ -469,16 +498,21 @@ var Layout = React.createClass({
           <div className="col-lg-8">
             <div className="row">
               <div className="col-sm-6">
-                <PieCard title="Response Code" range={this.props.dateRange} src="/api/metric/responseCode/total" />
+                <PieCard title="Response Code" range={this.props.dateRange} src="/api/metric/responseCode/total" colors={{200:3, 304:1, 401:0, 404:4, 500:2}} />
               </div>
               <div className="col-sm-6">
-                <PieCard title="Method" range={this.props.dateRange} src="/api/metric/method/total" />
+                <PieCard title="Method" range={this.props.dateRange} src="/api/metric/method/total" colors={{'DELETE':2, 'GET':3, 'POST':0, 'PUT':1}} />
               </div>
             </div>
-            <TimeGraphCard title="Client Error Reports" range={this.props.dateRange} src="/api/metric/date/total?path=rest/reportError" />
+            <TimeGraphCard title="Client Error Reports" range={this.props.dateRange} src="/api/metric/date/total?path=rest/reportError" colors={{0:2}} />
           </div>
           <div className="col-lg-4">
             <ListCard title="Top Paths" range={this.props.dateRange} src="/api/metric/path/total?sort=-total&limit=10" />
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-lg-8">
+            <TimeGraphCard title="Access Requests" range={this.props.dateRange} src="/api/accessRequests" colors={{'Accepted':1, 'Completed':3, 'Pending':2}} />
           </div>
         </div>
       </div>
@@ -489,7 +523,7 @@ var Layout = React.createClass({
 var DashApp = React.createClass({
   getInitialState: function () {
     return {
-      dateRange: new DateRange('all')
+      dateRange: new DateRange('-30d')
     };
   },
 
