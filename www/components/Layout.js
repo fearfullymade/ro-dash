@@ -3,8 +3,8 @@ import ListCard from './ListCard';
 import PieCard from './PieCard';
 import TimeGraphCard from './TimeGraphCard';
 
-export default React.createClass({
-  render: function () {
+export default class Layout extends React.Component {
+  render() {
     return (
       <div style={{marginTop:'30px'}}>
         <div className="row">
@@ -40,4 +40,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

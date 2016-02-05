@@ -3,27 +3,27 @@ import TopNav from './TopNav';
 import Layout from './Layout';
 import DateRange from '../helpers/DateRange';
 
-export default React.createClass({
-  getInitialState: function () {
-    return {
+export default class DashApp extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
       dateRange: new DateRange('-30d')
     };
-  },
+  }
 
-  handleDateRangeChange: function (range) {
+  handleDateRangeChange (range) {
     this.setState({
       dateRange: range
     });
-  },
+  };
 
-  render: function () {
+  render() {
     return (
       <div className="container-fluid">
-        <TopNav dateRange={this.state.dateRange} handleDateRangeChange={this.handleDateRangeChange} />
+        <TopNav dateRange={this.state.dateRange} handleDateRangeChange={::this.handleDateRangeChange} />
         <Layout dateRange={this.state.dateRange} />
       </div>
     );
   }
-});
-
-
+}

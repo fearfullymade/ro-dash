@@ -1,8 +1,8 @@
 import React from 'react';
 import DateRangePicker from './DateRangePicker';
 
-export default React.createClass({
-  render: function () {
+export default class TopNav extends React.Component {
+  render() {
     return (
       <nav className="navbar navbar-dark bg-inverse">
         <a className="navbar-brand" href="#">ReachOut Dashboard</a>
@@ -12,4 +12,4 @@ export default React.createClass({
       </nav>
     );
   }
-});
+}

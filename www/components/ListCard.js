@@ -1,32 +1,34 @@
 import React from 'react';
 import DateRange from '../helpers/DateRange';
 
-export default React.createClass({
-  getInitialState: function () {
-    return {
+export default class ListCard extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
       refreshing: false,
       listData: []
     };
-  },
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     $.getJSON('/api/users', function (result) {
       var users = { };
 
       for (var i = 0; i < result.length; i++)
         users[result[i]._id] = result[i].name;
 
-      if (this.isMounted()) {
+      //if (this.isMounted()) {
         this.setState({
           users: users
         });
     
         this.refreshData();
-      }
+      //}
     }.bind(this));
-  },
+  }
 
-  refreshData: function (src, range) {
+  refreshData(src, range) {
     if (!src)
       src = this.props.src;
     if (!range)
@@ -46,26 +48,26 @@ export default React.createClass({
         src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date<=' + endDate.format("YYYY-MM-DD");
 
       $.getJSON(src, function (result) {
-        if (this.isMounted()) {
+        //if (this.isMounted()) {
           this.setState({
             refreshing: false,
             listData: result[0]
           });
-        }
+        //}
       }.bind(this));
     }
-  },
+  }
 
-  handleRefreshClick: function (e) {
+  handleRefreshClick(e) {
     this.refreshData();
-  },
+  }
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.src != this.props.src || !DateRange.areSame(nextProps.range, this.props.range))
       this.refreshData(nextProps.src, nextProps.range);
-  },
+  }
 
-  render: function () {
+  render() {
     var mapX = this.props.mapX;
     var users = this.state.users;
 
@@ -74,7 +76,7 @@ export default React.createClass({
     return (
       <div className="card card-inverse">
         <div className="card-block">
-          <button type="button" className="btn btn-secondary-outline btn-sm pull-right" onClick={this.handleRefreshClick}>
+          <button type="button" className="btn btn-secondary-outline btn-sm pull-right" onClick={::this.handleRefreshClick}>
             <i className="fa fa-refresh"></i>
           </button>
           <h4 className="card-title">{this.props.title}</h4>
@@ -102,4 +104,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+}

@@ -1,15 +1,11 @@
 import React from 'react';
 import DateRange from '../helpers/DateRange';
 
-export default React.createClass({
-  getDefaultProps: function () {
-    return {
-      colors: {}
-    };
-  },
+export default class TimeGraphCard extends React.Component {
+  constructor() {
+    super();
 
-  getInitialState: function () {
-    return {
+    this.state = {
       refreshing: false,
 
       flotOptions: {
@@ -38,21 +34,21 @@ export default React.createClass({
         }
       }
     };
-  },
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     this.configureGraph();
     this.refreshData();
-  },
+  }
 
-  componentDidUpdate: function () {
+  componentDidUpdate() {
     if (!this.state.refreshing && this.state.chartData) {
       var chartDiv = React.findDOMNode(this.refs.chart);
       $.plot(chartDiv, this.state.chartData, this.state.flotOptions);
     }
-  },
+  }
 
-  configureGraph: function (range) {
+  configureGraph(range) {
     if (!range)
       range = this.props.range;
 
@@ -72,9 +68,9 @@ export default React.createClass({
     this.setState({
       flotOptions: opts
     });
-  },
+  }
 
-  refreshData: function (src, range) {
+  refreshData(src, range) {
     if (!src)
       src = this.props.src;
     if (!range)
@@ -111,32 +107,32 @@ export default React.createClass({
         if (data.length == 1)
           data[0].label = '';
 
-        if (this.isMounted()) {
+        //if (this.isMounted()) {
           this.setState({
             refreshing: false,
             chartData: data
           });
-        }
+        //}
       }.bind(this));
     }
-  },
+  }
 
-  handleRefreshClick: function (e) {
+  handleRefreshClick(e) {
     this.refreshData();
-  },
+  }
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.src != this.props.src || !DateRange.areSame(nextProps.range, this.props.range)) {
       this.configureGraph(nextProps.range);
       this.refreshData(nextProps.src, nextProps.range);
     }
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div className="card card-inverse">
         <div className="card-block">
-          <button type="button" className="btn btn-secondary-outline btn-sm pull-right" onClick={this.handleRefreshClick}>
+          <button type="button" className="btn btn-secondary-outline btn-sm pull-right" onClick={::this.handleRefreshClick}>
             <i className="fa fa-refresh"></i>
           </button>
           <h4 className="card-title">{this.props.title}</h4>
@@ -148,5 +144,6 @@ export default React.createClass({
       </div>
     );
   }
-});
+}
 
+TimeGraphCard.defaultProps = { colors: {} }

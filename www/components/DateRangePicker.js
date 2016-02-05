@@ -1,20 +1,22 @@
 import React from 'react';
 import DateRange from '../helpers/DateRange';
 
-export default React.createClass({
-  getInitialState: function () {
-    return {
+export default class DateRangePicker extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
       isOpen: false
     };
-  },
+  }
 
-  handleMainButtonClick: function (event) {
+  handleMainButtonClick(event) {
     this.setState({
       isOpen: !this.state.isOpen
     });
-  },
+  }
 
-  handlePresetClick: function (rangeId, event) {
+  handlePresetClick(rangeId, event) {
     var range = new DateRange(rangeId);
 
     this.setState({
@@ -23,9 +25,9 @@ export default React.createClass({
 
     if (!DateRange.areSame(this.props.range, range))
       this.props.onChange(range);
-  },
+  }
 
-  render: function () {
+  render() {
     var classes = this.state.isOpen ? 'btn-group open' : 'btn-group';
 
     var currentRange = '';
@@ -39,16 +41,16 @@ export default React.createClass({
 
     return (
       <div className={classes}>
-        <button type="button" className="btn btn-secondary-outline" onClick={this.handleMainButtonClick}>
+        <button type="button" className="btn btn-secondary-outline" onClick={::this.handleMainButtonClick}>
           <i className="fa fa-calendar-o" /> {currentRange}
         </button>
         <div className="dropdown-menu dropdown-menu-right">
-          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, 'all')}>All Time</a>
-          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-0d')}>Today</a>
-          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-7d')}>Last 7 days</a>
-          <a className="dropdown-item" href="#" onClick={this.handlePresetClick.bind(null, '-30d')}>Last 30 days</a>
+          <a className="dropdown-item" href="#" onClick={::this.handlePresetClick.bind(this, 'all')}>All Time</a>
+          <a className="dropdown-item" href="#" onClick={::this.handlePresetClick.bind(this, '-0d')}>Today</a>
+          <a className="dropdown-item" href="#" onClick={::this.handlePresetClick.bind(this, '-7d')}>Last 7 days</a>
+          <a className="dropdown-item" href="#" onClick={::this.handlePresetClick.bind(this, '-30d')}>Last 30 days</a>
         </div>
       </div>
     );
   }
-});
+}
