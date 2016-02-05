@@ -1,3 +1,7 @@
+import React from 'react';
+import {render} from 'react-dom';
+import { Provider } from 'react-redux';
+
 var DateRange = function DateRange(val) {
   function BuildGetter(val) {
     if (val.startsWith('-') || val.startsWith('+')) {
@@ -543,4 +547,4 @@ var DashApp = React.createClass({
   }
 });
 
-React.render(<DashApp></DashApp>, document.getElementById('dash-app'));
+render(<DashApp></DashApp>, document.getElementById('dash-app'));

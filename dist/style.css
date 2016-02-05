@@ -1,0 +1,17 @@
+body {
+  color: #fff;
+  background-color:#333;
+}
+
+.card {
+  background-color: #373a3c;
+}
+
+.list-group-item {
+  background-color: inherit;
+  color: #fff;
+}
+
+.dropdown-menu {
+  background-color: #999;
+}
