@@ -26,24 +26,6 @@ export default function DateRange(val) {
     this.getStartDate = BuildGetter(start);
     this.getEndDate = BuildGetter(end);
   }
-  /*this.getStartDate = function () {
-    if (val == 'all')
-      return null;
-
-    var today = moment().startOf('day');
-
-    switch (val) {
-      case '-30d':
-        return today.subtract(30, 'days');
-    }
-  };
-
-  this.getEndDate = function () {
-    if (val == 'all')
-      return null;
-
-    return moment().startOf('day');
-  };*/
 };
 
 DateRange.areSame = function (r1, r2) {
@@ -56,4 +38,6 @@ DateRange.areSame = function (r1, r2) {
   return r1.getId() == r2.getId();
 };
 
-
+DateRange.prototype.toString = function () {
+  return this.getId();
+};
