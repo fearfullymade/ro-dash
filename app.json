@@ -1,0 +1,11 @@
+{
+  "name": "ro-dash",
+  "description": "Dashboard designed for tracking API metrics",
+  "success_url": "/",
+  "addons": [
+    "mongolab:sandbox"
+  ],
+  "buildpacks": [
+    { "url": "https://github.com/heroku/heroku-buildpack-php" }
+  ]
+}
