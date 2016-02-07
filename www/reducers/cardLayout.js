@@ -36,16 +36,6 @@ const initialState = [
         ]
       }
     ]
-  },
-  {
-    children: [
-      {
-        size: 'col-lg-8',
-        children: [
-          { cardId: 8 }
-        ]
-      }
-    ]
   }
 ];
 

@@ -40,12 +40,6 @@ const initialState = {
     type: 'List',
     title: 'Top Paths',
     src: '/api/metric/path/total?sort=-total&limit=10'
-  },
-  8: {
-    type: 'TimeGraph',
-    title: 'Access Requests',
-    src: '/api/accessRequests',
-    colors: {'Accepted':1, 'Completed':3, 'Pending':2}
   }
 };
 
