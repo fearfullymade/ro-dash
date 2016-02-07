@@ -1,6 +1,7 @@
 import * as types from '../constants/ActionTypes';
 import DateRange from '../helpers/DateRange';
 import { collectCardIds } from '../helpers/layout';
+import request from 'superagent';
 
 function refreshingData(cardId) {
   return { type: types.REFRESHING_DATA, cardId };
@@ -79,15 +80,18 @@ export function refreshDataAsync(cardId, range) {
 
     dispatch(refreshingData(cardId));
 
-    $.getJSON(src, function (result) {
+    request
+      .get(src)
+      .end(function (err, response) {
+        let result = response.body;
 
-      let processor = dataProcessors[config.type];
+        let processor = dataProcessors[config.type];
 
-      if (processor)
-          result = processor(result, config);
-            
-      dispatch(refreshData(cardId, result));
-    });
+        if (processor)
+            result = processor(result, config);
+              
+        dispatch(refreshData(cardId, result));
+      });
 
   };
 }
@@ -108,13 +112,16 @@ export function changeDateRange(range) {
 
 export function refreshLookupDataAsync(key) {
   return (dispatch, getState) => {
-    $.getJSON('/api/' + key, function (result) {
-      var data = { };
+    request
+      .get('/api/' + key)
+      .end(function (err, response) {
+        let result = response.body;
+        var data = { };
 
-      for (var i = 0; i < result.length; i++)
-        data[result[i]._id] = result[i].name;
+        for (var i = 0; i < result.length; i++)
+          data[result[i]._id] = result[i].name;
 
-      dispatch({ type: types.LOOKUP_DATA_REFRESHED, key, data });
-    });
+        dispatch({ type: types.LOOKUP_DATA_REFRESHED, key, data });
+      });
   };
 }
