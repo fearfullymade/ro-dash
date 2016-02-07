@@ -11,6 +11,7 @@ import DateRange from './helpers/DateRange';
 let store = createStore(rootReducer, applyMiddleware(thunk));
 
 //initial data load
+store.dispatch(actions.refreshLookupDataAsync('users'));
 store.dispatch(actions.changeDateRange(new DateRange('-30d')));
 
 render(

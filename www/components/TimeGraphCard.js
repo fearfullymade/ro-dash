@@ -2,39 +2,6 @@ import React from 'react';
 import DateRange from '../helpers/DateRange';
 
 export default class TimeGraphCard extends React.Component {
-  constructor() {
-    super();
-
-    this.state = {
-      refreshing: false,
-
-      flotOptions: {
-        series: {
-          stack: true,
-          bars: {
-            show: true,
-            barWidth: 24*60*60*1000,
-            align: 'center'
-          }
-        },
-        xaxis: {
-          mode: 'time',
-          timeformat: '%Y-%m-%d',
-          minTickSize: [1, 'day'],
-          tickLength: 0,
-          font: {
-            color: '#fff'
-          }
-        },
-        yaxis: {
-          tickColor: '#999',
-          font: {
-            color: '#fff'
-          }
-        }
-      }
-    };
-  }
 
   componentDidMount() {
     this.renderChart();
@@ -48,7 +15,31 @@ export default class TimeGraphCard extends React.Component {
     if (!range)
       range = this.props.range;
 
-    var opts = this.state.flotOptions;
+    var opts = {
+      series: {
+        stack: true,
+        bars: {
+          show: true,
+          barWidth: 24*60*60*1000,
+          align: 'center'
+        }
+      },
+      xaxis: {
+        mode: 'time',
+        timeformat: '%Y-%m-%d',
+        minTickSize: [1, 'day'],
+        tickLength: 0,
+        font: {
+          color: '#fff'
+        }
+      },
+      yaxis: {
+        tickColor: '#999',
+        font: {
+          color: '#fff'
+        }
+      }
+    };
 
     var startDate = range.getStartDate();
     var endDate = range.getEndDate() || moment().startOf('day');

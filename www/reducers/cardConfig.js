@@ -16,7 +16,7 @@ const initialState = {
     type: 'List',
     title: 'Top Users',
     src: '/api/metric/userId/total?userId!=null&sort=-total&limit=10',
-    mapX: 'user'
+    mapX: 'users'
   },
   4: {
     type: 'Pie',

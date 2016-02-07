@@ -20,10 +20,20 @@ export default class Layout extends React.Component {
       );
     }
     else {
-      switch (this.props.cardConfig[item.cardId].type) {
-        case 'TimeGraph': component = <cards.TimeGraph id={item.cardId} range={this.props.dateRange} />; break;
-        case 'List': component = <cards.List id={item.cardId} range={this.props.dateRange} />; break;
-        case 'Pie': component = <cards.Pie id={item.cardId} range={this.props.dateRange} />; break;
+      let cardConfig = this.props.cardConfig[item.cardId];
+
+      let props = {
+        id: item.cardId,
+        range: this.props.dateRange
+      };
+
+      if (cardConfig.mapX)
+        props[cardConfig.mapX] = this.props.lookupData[cardConfig.mapX];
+
+      switch (cardConfig.type) {
+        case 'TimeGraph': component = <cards.TimeGraph {...props} />; break;
+        case 'List': component = <cards.List {...props} />; break;
+        case 'Pie': component = <cards.Pie {...props} />; break;
       }
     }
 

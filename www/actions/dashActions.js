@@ -106,3 +106,15 @@ export function changeDateRange(range) {
   };
 }
 
+export function refreshLookupDataAsync(key) {
+  return (dispatch, getState) => {
+    $.getJSON('/api/' + key, function (result) {
+      var data = { };
+
+      for (var i = 0; i < result.length; i++)
+        data[result[i]._id] = result[i].name;
+
+      dispatch({ type: types.LOOKUP_DATA_REFRESHED, key, data });
+    });
+  };
+}

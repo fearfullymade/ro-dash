@@ -2,37 +2,13 @@ import React from 'react';
 import DateRange from '../helpers/DateRange';
 
 export default class ListCard extends React.Component {
-  constructor() {
-    super();
-
-    this.state = {
-      refreshing: false,
-      listData: []
-    };
-  }
-
-  componentDidMount() {
-    $.getJSON('/api/users', function (result) {
-      var users = { };
-
-      for (var i = 0; i < result.length; i++)
-        users[result[i]._id] = result[i].name;
-
-      //if (this.isMounted()) {
-        this.setState({
-          users: users
-        });
-      //}
-    }.bind(this));
-  }
-
   render() {
     var mapX = this.props.mapX;
-    var users = this.state.users;
+    var lookup = this.props[mapX];
 
     var total = !this.props.data ? 0 : this.props.data.reduce(function (t, item) { return t + item[1]; }, 0);
 
-    const isLoading = this.props.data == null;
+    const isLoading = this.props.data == null || mapX && !lookup;
 
     return (
       <div className="card card-inverse">
@@ -50,8 +26,8 @@ export default class ListCard extends React.Component {
 
                 var display = item[0];
 
-                if (mapX == 'user')
-                  display = users[item[0]];
+                if (mapX)
+                  display = lookup[item[0]];
 
                 return (
                   <li key={item[0]} className="list-group-item" style={{background: 'linear-gradient(to right, #444 '+percent+'%, #373a3c '+percent+'%)'}}>

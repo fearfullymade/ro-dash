@@ -6,7 +6,8 @@ const mapStateToProps = (state, ownProps) => {
   return {
     layout: state.cardLayout,
     cardConfig: state.cardConfig,
-    dateRange: state.dateRange
+    dateRange: state.dateRange,
+    lookupData: state.lookupData
   }
 }
 

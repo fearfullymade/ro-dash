@@ -2,22 +2,6 @@ import React from 'react';
 import DateRange from '../helpers/DateRange';
 
 export default class PieCard extends React.Component {
-  constructor() {
-    super();
-
-    this.state = {
-      refreshing: false,
-
-      flotOptions: {
-        series: {
-          pie: {
-            show: true
-          }
-        }
-      }
-    };
-  }
-
   componentDidMount() {
     this.renderChart();
   }
@@ -27,9 +11,17 @@ export default class PieCard extends React.Component {
   }
 
   renderChart() {
+    let flotOptions = {
+      series: {
+        pie: {
+          show: true
+        }
+      }
+    };
+
     if (this.props.data && this.props.data.length > 0) {
       var chartDiv = $(this.refs.chart);
-      $.plot(chartDiv, this.props.data, this.state.flotOptions);
+      $.plot(chartDiv, this.props.data, flotOptions);
     }
   }
 
