@@ -37,18 +37,14 @@ export default class TimeGraphCard extends React.Component {
   }
 
   componentDidMount() {
-    this.configureGraph();
-    this.refreshData();
+    this.renderChart();
   }
 
   componentDidUpdate() {
-    if (!this.state.refreshing && this.state.chartData) {
-      var chartDiv = React.findDOMNode(this.refs.chart);
-      $.plot(chartDiv, this.state.chartData, this.state.flotOptions);
-    }
+    this.renderChart();
   }
 
-  configureGraph(range) {
+  renderChart(range) {
     if (!range)
       range = this.props.range;
 
@@ -65,78 +61,23 @@ export default class TimeGraphCard extends React.Component {
     opts.xaxis.min = startDate ? startDate.valueOf() : null;
     opts.xaxis.max = endDate.valueOf();
 
-    this.setState({
-      flotOptions: opts
-    });
-  }
-
-  refreshData(src, range) {
-    if (!src)
-      src = this.props.src;
-    if (!range)
-      range = this.props.range;
-
-    if (src) {
-      this.setState({
-        refreshing: true
-      });
-
-      var startDate = range.getStartDate();
-      var endDate = range.getEndDate();
-
-      if (startDate)
-        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date>=' + startDate.format("YYYY-MM-DD");
-      if (endDate)
-        src += (src.indexOf('?') >= 0 ? '&' : '?') + 'date<=' + endDate.format("YYYY-MM-DD");
-
-      $.getJSON(src, function (result) {
-        var data = []; 
-
-        for (var s in result) {
-          var series = {
-            label: s,
-            data: result[s]
-          };
-
-          if (this.props.colors[series.label])
-            series.color = this.props.colors[series.label];
-
-          data.push(series);
-        }
-
-        if (data.length == 1)
-          data[0].label = '';
-
-        //if (this.isMounted()) {
-          this.setState({
-            refreshing: false,
-            chartData: data
-          });
-        //}
-      }.bind(this));
+    if (this.props.data) {
+      var chartDiv = $(this.refs.chart);
+      $.plot(chartDiv, this.props.data, opts);
     }
   }
-
-  handleRefreshClick(e) {
-    this.refreshData();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.src != this.props.src || !DateRange.areSame(nextProps.range, this.props.range)) {
-      this.configureGraph(nextProps.range);
-      this.refreshData(nextProps.src, nextProps.range);
-    }
-  }
-
+  
   render() {
+    const isLoading = this.props.data == null;
+
     return (
       <div className="card card-inverse">
         <div className="card-block">
-          <button type="button" className="btn btn-secondary-outline btn-sm pull-right" onClick={::this.handleRefreshClick}>
+          <button type="button" className="btn btn-secondary-outline btn-sm pull-right" onClick={this.props.refresh}>
             <i className="fa fa-refresh"></i>
           </button>
           <h4 className="card-title">{this.props.title}</h4>
-          { this.state.refreshing 
+          { isLoading
             ? <div key="spinner" style={{height: '200px', paddingTop: '70px'}} className="text-center"><i className="fa fa-circle-o-notch fa-spin fa-3x" /></div>
             : <div key="chart" ref="chart" style={{height: '200px'}}></div>
           }
