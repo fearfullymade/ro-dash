@@ -8,12 +8,17 @@ $users = $db->users->find();
 
 if (!$users->hasNext()) {
   $db->users->batchInsert([
-    ['name' => 'User 1'],
-    ['name' => 'User 2'],
-    ['name' => 'User 3'],
-    ['name' => 'User 4'],
-    ['name' => 'User 5'],
-    ['name' => 'User 6']
+    ['name' => 'Lue49'],
+    ['name' => 'Rubye89'],
+    ['name' => 'Bert.Howe99'],
+    ['name' => 'Carley.Pollich'],
+    ['name' => 'Arlie.Lockman'],
+    ['name' => 'Dino.Williamson63'],
+    ['name' => 'Jaycee34'],
+    ['name' => 'Leopoldo.Rutherford12'],
+    ['name' => 'Adelbert.Flatley'],
+    ['name' => 'Jorge.Collier'],
+    ['name' => 'Dee.Schowalter18']
   ]);
 
   $users = $db->users->find();
@@ -30,24 +35,34 @@ if ($mostRecent->hasNext()) {
 }
 else {
   $date = new Datetime('now UTC');
-  $date->sub(new DateInterval('P7DT5H'));
+  $date->sub(new DateInterval('P30DT5H'));
   $date->setTime(0, 0, 0);
 }
 
+echo "Creating metrics starting at {$date->format("Y-m-d")}\n";
+
 //insert metrics
-$methods = ['GET' => 100, 'POST' => 30, 'PUT' => 50, 'DELETE' => 20];
-$paths = ['/api/posts' => 30, '/api/posts/{id}' => 100, '/api/posts/{id}/comments' => 80, '/api/posts/{id}/comments/{commentId}' => 50];
-$responseCodes = [200 => 100, 304 => 40, 401 => 10, 500 => 5];
+$methods = ['GET' => 90, 'POST' => 30, 'PUT' => 50, 'DELETE' => 20];
+$paths = ['/api/posts' => 30, '/api/posts/{id}' => 90, '/api/posts/{id}/comments' => 80, '/api/posts/{id}/comments/{commentId}' => 50, 'rest/reportError' => 2];
+$responseCodes = [200 => 90, 304 => 40, 401 => 10, 500 => 5];
 
 $today = new Datetime('now UTC');
 
 $metrics = [];
 
 while ($date < $today) {
-  foreach ($methods as $m => $mp) {
-    foreach ($paths as $p => $pp) {
-      foreach ($responseCodes as $r => $rp) {
-        foreach ($users as $user) {
+  foreach ($users as $user) {
+    if (rand(0, 100) > 60) continue;
+
+    foreach ($methods as $m => $mp) {
+      if (rand(0, 100) > $mp) continue;
+
+      foreach ($paths as $p => $pp) {
+        if (rand(0, 100) > $pp) continue;
+
+        foreach ($responseCodes as $r => $rp) {
+          if (rand(0, 100) > $rp) continue;
+
           $metrics []= [
             '_id' => [
               'date' => new MongoDate($date->getTimestamp()),
@@ -58,7 +73,7 @@ while ($date < $today) {
               'isTrial' => false,
               'responseCode' => $r
             ],
-            'count' => 10
+            'count' => rand(5, 20)
           ];
         }
       }
@@ -67,6 +82,8 @@ while ($date < $today) {
   
   $date->add(new DateInterval('P1D'));
 }
+
+echo "Inserting ".count($metrics)." metrics\n";
 
 if (count($metrics) > 0) {
   $db->metrics->batchInsert($metrics);
