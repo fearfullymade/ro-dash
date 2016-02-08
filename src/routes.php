@@ -7,8 +7,8 @@ $app->get('/', function ($request, $response, $args) {
 $app->get('/metric/{x}/{y}', function ($request, $response, $args) {
   $params = $request->getQueryParams();
 
-  $conn = new MongoClient(getenv('db_connection'));
-  $db = $conn->selectDB(getenv('db_database'));
+  $conn = new MongoClient(getenv('MONGOLAB_URI'));
+  $db = $conn->selectDB(array_reverse(explode('/', getenv('MONGOLAB_URI')))[0]);
 
   //y axis
   if ($args['y'] == 'total')
@@ -153,8 +153,8 @@ $app->get('/metric/{x}/{y}', function ($request, $response, $args) {
 });
 
 $app->get('/users', function ($request, $response, $args) {
-  $conn = new MongoClient(getenv('db_connection'));
-  $db = $conn->selectDB(getenv('db_database'));
+  $conn = new MongoClient(getenv('MONGOLAB_URI'));
+  $db = $conn->selectDB(array_reverse(explode('/', getenv('MONGOLAB_URI')))[0]);
 
   $users = $db->users->find([], ['name' => 1]);
 
