@@ -7,6 +7,7 @@ var concat = require("gulp-concat");
 var buffer = require('vinyl-buffer');
 var source = require('vinyl-source-stream');
 var gutil = require('gulp-util');
+var uglify = require('gulp-uglify');
 
 gulp.task("babelify", function () {
   var b = browserify({
@@ -22,6 +23,7 @@ gulp.task("babelify", function () {
     .pipe(source('app.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init())
+    //.pipe(uglify())
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest("dist"));
 });
