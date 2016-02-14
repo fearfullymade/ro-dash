@@ -22,7 +22,7 @@ describe('dashActions', () => {
       expect(fn).not.to.be.null;
 
       const dispatch = sinon.spy();
-      const getState = sinon.stub().returns({ dateRange: null, cardLayout: [] });
+      const getState = sinon.stub().returns({ appState: {dateRange: null}, cardLayout: [] });
 
       fn(dispatch, getState);
 
@@ -35,7 +35,7 @@ describe('dashActions', () => {
       let fn = actions.changeDateRange(range);
 
       const dispatch = sinon.spy();
-      const getState = sinon.stub().returns({ dateRange: new DateRange('-30d'), cardLayout: [] });
+      const getState = sinon.stub().returns({ appState: {dateRange: new DateRange('-30d')}, cardLayout: [] });
 
       fn(dispatch, getState);
 
@@ -48,7 +48,7 @@ describe('dashActions', () => {
       let fn = actions.changeDateRange(range);
 
       const dispatch = sinon.spy();
-      const getState = sinon.stub().returns({ dateRange: null, cardLayout: [] });
+      const getState = sinon.stub().returns({ appState: {dateRange: null}, cardLayout: [] });
 
       sinon.stub(layoutHelpers, 'collectCardIds').returns([1,2,3,4]);
 
