@@ -7,8 +7,8 @@ export default class DashApp extends React.Component {
   render() {
     return (
       <div className="container-fluid">
-        <TopNav dateRange={this.props.dateRange} handleDateRangeChange={this.props.changeDateRange} />
-        <Layout dateRange={this.props.dateRange} />
+        <TopNav appState={this.props.appState} handleDateRangeChange={this.props.changeDateRange} enterConfigMode={this.props.enterConfigMode} leaveConfigMode={this.props.leaveConfigMode} />
+        <Layout appState={this.props.appState} updateCardConfig={this.props.updateCardConfig} />
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import * as types from '../constants/ActionTypes';
+import * as cardTypes from '../constants/CardTypes';
 import DateRange from '../helpers/DateRange';
 import { collectCardIds } from '../helpers/layout';
 import request from 'superagent';
@@ -12,7 +13,7 @@ function refreshData(cardId, data) {
 }
 
 let dataProcessors = {
-  'TimeGraph': (result, config) => {
+  [cardTypes.TIME_GRAPH]: (result, config) => {
     var data = []; 
 
     for (var s in result) {
@@ -32,7 +33,7 @@ let dataProcessors = {
     return data;
   },
 
-  'Pie': (result, config) => {
+  [cardTypes.PIE]: (result, config) => {
     var data = []; 
 
     if (result.length > 0) {
@@ -57,7 +58,7 @@ let dataProcessors = {
     return data;
   },
 
-  'List': (result) => {
+  [cardTypes.LIST]: (result) => {
     return result[0] || [];
   }
 };
@@ -96,7 +97,7 @@ export function refreshDataAsync(cardId, range) {
 
 export function changeDateRange(range) {
   return (dispatch, getState) => {
-    const currentRange = getState().dateRange;
+    const currentRange = getState().appState.dateRange;
 
     if (!DateRange.areSame(currentRange, range)) {
       dispatch({ type: types.DATE_RANGE_CHANGE, range });
@@ -122,4 +123,24 @@ export function refreshLookupDataAsync(key) {
         dispatch({ type: types.LOOKUP_DATA_REFRESHED, key, data });
       });
   };
+}
+
+export function toggleConfigMode(value) {
+  if (value)
+    return { type: types.TOGGLE_CONFIG_MODE, value };
+
+  return (dispatch, getState) => {
+    let state = getState();
+
+    //load data for any new or changed cards
+    collectCardIds(state.cardLayout)
+      .filter(id => !state.cardData.has(id))
+      .map(id => dispatch(refreshDataAsync(id, state.appState.dateRange)));
+
+    dispatch({ type: types.TOGGLE_CONFIG_MODE, value });
+  }
+}
+
+export function updateCardConfig(id, changes) {
+  return { type: types.UPDATE_CARD_CONFIG, id, changes };
 }

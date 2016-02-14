@@ -1,4 +1,4 @@
-import { REFRESH_DATA, REFRESHING_DATA } from '../constants/ActionTypes';
+import { REFRESH_DATA, REFRESHING_DATA, UPDATE_CARD_CONFIG } from '../constants/ActionTypes';
 import DateRange from '../helpers/DateRange';
 import Immutable from 'immutable';
 
@@ -10,6 +10,11 @@ export default function cardData(state = initialState, action) {
       return state.delete(action.cardId);
     case REFRESH_DATA:
       return state.set(action.cardId, action.data);
+    case UPDATE_CARD_CONFIG:
+      if (action.changes.src)
+        return state.delete(action.id);
+      else
+        return state;
     default:
       return state;
   }

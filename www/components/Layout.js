@@ -1,5 +1,7 @@
 import React from 'react';
 import * as cards from '../containers/card';
+import * as cardTypes from '../constants/CardTypes';
+import CardSettings from './CardSettings';
 import DateRange from '../helpers/DateRange';
 import { collectCardIds } from '../helpers/layout';
 
@@ -22,17 +24,22 @@ export default class Layout extends React.Component {
     else {
       let cardConfig = this.props.cardConfig.get(item.cardId);
 
-      let props = {
-        id: item.cardId,
-        range: this.props.dateRange
-      };
+      if (this.props.appState.configMode) {
+        component = <CardSettings config={cardConfig} updateConfig={this.props.updateCardConfig} lookupTypes={this.props.lookupData.keySeq()} />;
+      }
+      else {
+        let props = {
+          id: item.cardId,
+          range: this.props.appState.dateRange
+        };
 
-      props[cardConfig.mapX] = this.props.lookupData.get(cardConfig.mapX);
+        props[cardConfig.mapX] = this.props.lookupData.get(cardConfig.mapX);
 
-      switch (cardConfig.type) {
-        case 'TimeGraph': component = <cards.TimeGraph {...props} />; break;
-        case 'List': component = <cards.List {...props} />; break;
-        case 'Pie': component = <cards.Pie {...props} />; break;
+        switch (cardConfig.type) {
+          case cardTypes.TIME_GRAPH: component = <cards.TimeGraph {...props} />; break;
+          case cardTypes.LIST: component = <cards.List {...props} />; break;
+          case cardTypes.PIE: component = <cards.Pie {...props} />; break;
+        }
       }
     }
 
