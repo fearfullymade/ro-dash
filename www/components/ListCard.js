@@ -27,7 +27,7 @@ export default class ListCard extends React.Component {
                 var display = item[0];
 
                 if (mapX)
-                  display = lookup[item[0]];
+                  display = lookup.get(item[0]);
 
                 return (
                   <li key={item[0]} className="list-group-item" style={{background: 'linear-gradient(to right, #444 '+percent+'%, #373a3c '+percent+'%)'}}>

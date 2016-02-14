@@ -9,7 +9,7 @@ export function collectCardIds(layout) {
       item.children.map(searchFn);
   };
 
-  layout.map(searchFn);
+  searchFn(layout);
 
   return cardIds;
 }

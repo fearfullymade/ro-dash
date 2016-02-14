@@ -5,11 +5,13 @@ import PieCard from '../components/PieCard';
 import * as actions from '../actions/dashActions';
 
 const mapStateToProps = (state, ownProps) => {
+  let config = state.cardConfig.get(ownProps.id);
+
   return {
-    title: state.cardConfig[ownProps.id].title,
-    mapX: state.cardConfig[ownProps.id].mapX,
-    colors: state.cardConfig[ownProps.id].colors,
-    data: state.cardData[ownProps.id]
+    title: config.title,
+    mapX: config.mapX,
+    colors: config.colors,
+    data: state.cardData.get(ownProps.id)
   }
 }
 

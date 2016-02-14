@@ -21,8 +21,7 @@ let dataProcessors = {
         data: result[s]
       };
 
-      if (config.colors && config.colors[series.label])
-        series.color = config.colors[series.label];
+      series.color = config.colors.get(''+series.label);
 
       data.push(series);
     }
@@ -49,8 +48,7 @@ let dataProcessors = {
           data: result[0][i][1]
         };
 
-        if (config.colors && config.colors[series.label])
-          series.color = config.colors[series.label];
+        series.color = config.colors.get(''+series.label);
         
         data.push(series);
       }
@@ -66,7 +64,7 @@ let dataProcessors = {
 
 export function refreshDataAsync(cardId, range) {
   return (dispatch, getState) => {
-    const config = getState().cardConfig[cardId];
+    const config = getState().cardConfig.get(cardId);
   
     let src = config.src;
 

@@ -20,15 +20,14 @@ export default class Layout extends React.Component {
       );
     }
     else {
-      let cardConfig = this.props.cardConfig[item.cardId];
+      let cardConfig = this.props.cardConfig.get(item.cardId);
 
       let props = {
         id: item.cardId,
         range: this.props.dateRange
       };
 
-      if (cardConfig.mapX)
-        props[cardConfig.mapX] = this.props.lookupData[cardConfig.mapX];
+      props[cardConfig.mapX] = this.props.lookupData.get(cardConfig.mapX);
 
       switch (cardConfig.type) {
         case 'TimeGraph': component = <cards.TimeGraph {...props} />; break;
@@ -37,14 +36,12 @@ export default class Layout extends React.Component {
       }
     }
 
-    let size = item.size || 'col-lg-12';
-
-    return <div key={this.keyId++} className={size}>{component}</div>;
+    return <div key={this.keyId++} className={item.width}>{component}</div>;
   }
 
   render() {
     this.keyId = 0;
-    var ctrls = this.props.layout.map(this.buildItem, this);
+    var ctrls = this.buildItem(this.props.layout);
 
     return (
       <div style={{marginTop:'30px'}}>
